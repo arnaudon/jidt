@@ -53,37 +53,27 @@ startJVM(getDefaultJVMPath(), "-ea", "-Djava.class.path=" + jarLocation)
 
 # Read in the command line arguments and assign default if required.
 # first argument in argv is the filename, so program arguments start from index 1.
-if (len(sys.argv) < 2):
-	kHistory = 1;
-else:
-	kHistory = int(sys.argv[1]);
-if (len(sys.argv) < 3):
-	lHistory = 1;
-else:
-	lHistory = int(sys.argv[2]);
+kHistory = 1 if (len(sys.argv) < 2) else int(sys.argv[1])
+lHistory = 1 if (len(sys.argv) < 3) else int(sys.argv[2])
 if (len(sys.argv) < 4):
 	knns = [4];
 else:
 	knnsStrings = sys.argv[3].split(",");
 	knns = [int(i) for i in knnsStrings]
-if (len(sys.argv) < 5):
-	numSurrogates = 0;
-else:
-	numSurrogates = int(sys.argv[4]);
-
+numSurrogates = 0 if (len(sys.argv) < 5) else int(sys.argv[4])
 # Read in the data
 datafile = '../../data/SFI-heartRate_breathVol_bloodOx.txt'
 rawData = readFloatsFile.readFloatsFile(datafile)
 # As numpy array:
 data = numpy.array(rawData)
 # Heart rate is first column, and we restrict to the samples that Schreiber mentions (2350:3550)
-heart = data[2349:3550,0]; # Extracts what Matlab does with 2350:3550 argument there.
+heart = data[2349:3550,0]
 # Chest vol is second column
 chestVol = data[2349:3550,1];
 # bloodOx = data[2349:3550,2];
 
 timeSteps = len(heart);
-	
+
 print("TE for heart rate <-> breath rate for Kraskov estimation with %d samples:" % timeSteps);
 
 # Using a KSG estimator for TE is the least biased way to run this:
@@ -96,7 +86,7 @@ teBreathToHeart = [];
 for knnIndex in range(len(knns)):
 	knn = knns[knnIndex];
 	# Compute a TE value for knn nearest neighbours
-				
+
 	# Perform calculation for heart -> breath (lag 1)
 	teCalc.initialise(kHistory,1,lHistory,1,1);
 	teCalc.setProperty("k", str(knn));
@@ -107,7 +97,7 @@ for knnIndex in range(len(knns)):
 		teHeartToBreathNullDist = teCalc.computeSignificance(numSurrogates);
 		teHeartToBreathNullMean = teHeartToBreathNullDist.getMeanOfDistribution();
 		teHeartToBreathNullStd = teHeartToBreathNullDist.getStdOfDistribution();
-	
+
 	# Perform calculation for breath -> heart (lag 1)
 	teCalc.initialise(kHistory,1,lHistory,1,1);
 	teCalc.setProperty("k", str(knn));
@@ -118,7 +108,7 @@ for knnIndex in range(len(knns)):
 		teBreathToHeartNullDist = teCalc.computeSignificance(numSurrogates);
 		teBreathToHeartNullMean = teBreathToHeartNullDist.getMeanOfDistribution();
 		teBreathToHeartNullStd = teBreathToHeartNullDist.getStdOfDistribution();
-	
+
 	print("TE(k=%d,l=%d,knn=%d): h->b = %.3f" % (kHistory, lHistory, knn, teHeartToBreath[knnIndex])), # , for no newline
 	if (numSurrogates > 0):
 		print(" (null = %.3f +/- %.3f)" % (teHeartToBreathNullMean, teHeartToBreathNullStd)),

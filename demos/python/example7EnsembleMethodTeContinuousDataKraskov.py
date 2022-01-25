@@ -46,13 +46,18 @@ teCalc.setProperty("k", "4") # Use Kraskov parameter K=4 for 4 nearest points
 teCalc.initialise(kHistoryLength) # Use target history length of kHistoryLength (Schreiber k)
 teCalc.startAddObservations()
 
-for trial in range(0,numTrials):
+for trial in range(numTrials):
 	# Create a new trial, with destArray correlated to
 	#  previous value of sourceArray:
-	sourceArray = [random.normalvariate(0,1) for r in range(numObservations)]
-	destArray = [0] + [sum(pair) for pair in zip([covariance*y for y in sourceArray[0:numObservations-1]], \
-		[(1-covariance)*y for y in [random.normalvariate(0,1) for r in range(numObservations-1)]] ) ]
-	
+	sourceArray = [random.normalvariate(0,1) for _ in range(numObservations)]
+	destArray = [0] + [
+	    sum(pair) for pair in zip(
+	        [covariance * y for y in sourceArray[:numObservations - 1]],
+	        [(1 - covariance) * y for y in
+	         [random.normalvariate(0, 1) for _ in range(numObservations - 1)]],
+	    )
+	]
+
 	# Add observations for this trial:
 	print("Adding samples from trial %d ..." % trial)
 	teCalc.addObservations(JArray(JDouble, 1)(sourceArray), JArray(JDouble, 1)(destArray))

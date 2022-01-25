@@ -36,12 +36,17 @@ startJVM(getDefaultJVMPath(), "-ea", "-Djava.class.path=" + jarLocation)
 numObservations = 1000
 covariance=0.4
 # Source array of random normals:
-sourceArray = [random.normalvariate(0,1) for r in range(numObservations)]
+sourceArray = [random.normalvariate(0,1) for _ in range(numObservations)]
 # Destination array of random normals with partial correlation to previous value of sourceArray
-destArray = [0] + [sum(pair) for pair in zip([covariance*y for y in sourceArray[0:numObservations-1]], \
-                                             [(1-covariance)*y for y in [random.normalvariate(0,1) for r in range(numObservations-1)]] ) ]
+destArray = [0] + [
+    sum(pair) for pair in zip(
+        [covariance * y for y in sourceArray[:numObservations - 1]],
+        [(1 - covariance) * y for y in
+         [random.normalvariate(0, 1) for _ in range(numObservations - 1)]],
+    )
+]
 # Uncorrelated source array:
-sourceArray2 = [random.normalvariate(0,1) for r in range(numObservations)]
+sourceArray2 = [random.normalvariate(0,1) for _ in range(numObservations)]
 # Create a TE calculator and run it:
 teCalcClass = JPackage("infodynamics.measures.continuous.kernel").TransferEntropyCalculatorKernel
 teCalc = teCalcClass()

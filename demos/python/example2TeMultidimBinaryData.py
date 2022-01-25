@@ -39,11 +39,9 @@ startJVM(getDefaultJVMPath(), "-ea", "-Djava.class.path=" + jarLocation)
 # However here we want 2 rows by 100 columns where the next time step (row 2) is to copy the
 # value of the column on the left from the previous time step (row 1):
 numObservations = 100
-row1 = [random.randint(0,1) for r in range(numObservations)]
-row2 = [row1[numObservations-1]] + row1[0:numObservations-1] # Copy the previous row, offset one column to the right
-twoDTimeSeriesPython = []
-twoDTimeSeriesPython.append(row1)
-twoDTimeSeriesPython.append(row2)
+row1 = [random.randint(0,1) for _ in range(numObservations)]
+row2 = [row1[numObservations-1]] + row1[:numObservations-1]
+twoDTimeSeriesPython = [row1, row2]
 twoDTimeSeriesJavaInt = JArray(JInt, 2)(twoDTimeSeriesPython) # 2 indicating 2D array
 
 # Create a TE calculator and run it:
